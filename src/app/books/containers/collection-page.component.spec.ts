@@ -37,6 +37,7 @@ describe('Collection Page', () => {
           selectors: [{ selector: fromBooks.selectBookCollection, value: [] }],
         }),
       ],
+      teardown: { destroyAfterEach: false }, // <-- disabling destroyAfterEach make test pass successfully
     });
 
     fixture = TestBed.createComponent(CollectionPageComponent);
