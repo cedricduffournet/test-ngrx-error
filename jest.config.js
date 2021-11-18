@@ -10,4 +10,5 @@ module.exports = {
   },
   transformIgnorePatterns: ["node_modules/(?!.*\\.mjs$)"],
   setupFilesAfterEnv: ["<rootDir>/setup-jest.ts"],
+  // testRunner: 'jest-jasmine2', // <-- changing test runner to jest-jasmine2 make all tests pass successfully
 };
