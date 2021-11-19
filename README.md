@@ -35,7 +35,7 @@ if I disable `destroyAfterEach` in `configureTestingModule` all test pass https:
 
 ## solution ?
 
-maybe we could use `shouldTearDownTestingModule` and write something like this ?
+maybe we could use `shouldTearDownTestingModule` in https://github.com/ngrx/platform/blob/master/modules/store/testing/src/mock_store.ts#L21 and write something like this ?
 
 ```ts
 if (typeof afterEach === "function") {
