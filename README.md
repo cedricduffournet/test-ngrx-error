@@ -1,27 +1,58 @@
 # TestNgrxJest
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.0.2.
+This project is related to the folowwin issue https://github.com/ngrx/platform/issues/3243
 
-## Development server
+## Reproduction
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+1. Clone this repo: github.com:cedricduffournet/test-ngrx-error.git
+2. Install dependencies
 
-## Code scaffolding
+```
+yarn install
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+3. Run jest test
 
-## Build
+```
+yarn jest
+```
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+The following error occur in all tests with provideMockStore added to providers
 
-## Running unit tests
+```
+ Cannot configure the test module when the test module has already been instantiated. Make sure you are not using `inject` before `R3TestBed.configureTestingModule`.
+ beforeEach(() => {
+  TestBed.configureTestingModule({
+                ^
+```
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+If i set `jest-jasmine2` as `testRunner` in jest config, I don't have any error.
+I did not have this issue in version 12 of angular and ngrx
 
-## Running end-to-end tests
+## additional information
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+if I disable `destroyAfterEach` in `configureTestingModule` all test pass https://github.com/cedricduffournet/test-ngrx-error/blob/master/src/app/books/containers/collection-page.component.spec.ts#L40 successfully
 
-## Further help
+## solution ?
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+maybe we could use `shouldTearDownTestingModule` and write something like this ?
+
+```ts
+if (typeof afterEach === "function") {
+  afterEach(() => {
+    try {
+      const testBed = getTestBed() as any;
+      const shouldTearDown = testBed.shouldTearDownTestingModule();
+      if (!shouldTearDown) {
+        const mockStore: MockStore | undefined = TestBed.inject(MockStore);
+        if (mockStore) {
+          mockStore.resetSelectors();
+        }
+      }
+      // eslint-disable-next-line no-empty
+    } catch {
+      console.log("error");
+    }
+  });
+}
+```
